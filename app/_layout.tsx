@@ -12,7 +12,11 @@ export default function RootLayout() {
   return (
     <ClerkProvider tokenCache={tokenCache}>
       <ConvexProviderWithClerk client={convex} useAuth={useAuth}>
-        <Stack />
+        <Stack
+          screenOptions={{
+            headerShown: false,
+          }}
+        />
       </ConvexProviderWithClerk>
     </ClerkProvider>
   );
