@@ -1,49 +1,92 @@
-import { Image } from 'expo-image';
-import { Stack } from 'expo-router';
-import React from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useSSO } from '@clerk/clerk-expo';
+import IonIcons from '@expo/vector-icons/Ionicons';
+import { router, Stack } from 'expo-router';
+import { maybeCompleteAuthSession } from 'expo-web-browser';
+import LottieView from 'lottie-react-native';
+import React, { useCallback } from 'react';
+import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+maybeCompleteAuthSession();
+
 export default function Page() {
+  const { startSSOFlow } = useSSO();
+
+  const onPress = useCallback(
+    async (provider: 'oauth_google' | 'oauth_apple') => {
+      try {
+        const { createdSessionId, setActive } = await startSSOFlow({
+          strategy: provider,
+        });
+
+        if (createdSessionId) {
+          setActive!({
+            session: createdSessionId,
+            navigate: async ({ session }) => {
+              if (session?.currentTask) {
+                console.log(session?.currentTask);
+                router.push('/sign-in');
+                return;
+              }
+
+              router.push('/');
+            },
+          });
+        }
+      } catch (err) {
+        console.error(JSON.stringify(err, null, 2));
+      }
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    []
+  );
+
   return (
     <SafeAreaView style={styles.container}>
       <Stack.Screen options={{ headerShown: false }} />
-      <Image
-        source={require('@/assets/logo.png')}
-        style={{ width: 240, height: 40, marginTop: 10 }}
-        placeholder={'Loading...'}
-        contentFit='contain'
-        transition={1000}
-      />
-      <View style={styles.content}>
-        <Text style={styles.title}>All in One Productivity App</Text>
-        <Image
-          source={require('@/assets/undraw.svg')}
-          style={{ width: 300, height: 300 }}
-          placeholder={'Loading...'}
-          contentFit='contain'
-          transition={1000}
-        />
-      </View>
-      <View style={styles.footer}>
-        <TouchableOpacity style={styles.button}>
-          <Image
-            source={require('@/assets/icons/google.svg')}
-            style={styles.buttonIcon}
+      <Image source={require('@/assets/logo.png')} style={styles.logo} />
+      <View style={styles.contentContainer}>
+        <View style={styles.content}>
+          <Text style={styles.title}>
+            Organize your tasks, habits and finances with ease
+          </Text>
+          <LottieView
+            source={require('@/assets/lottie.json')}
+            style={styles.lottie}
+            loop={true}
+            autoPlay
           />
-          <Text style={styles.buttonText}>Continue with Google</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.button}>
-          <Image
-            source={require('@/assets/icons/apple.svg')}
-            style={styles.buttonIcon}
-          />
-          <Text style={styles.buttonText}>Continue with Apple</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.button}>
-          <Text style={styles.buttonText}>Sign In</Text>
-        </TouchableOpacity>
+        </View>
+        <View style={styles.footer}>
+          <TouchableOpacity
+            style={[styles.socialButton, { backgroundColor: '#F2F2F2' }]}
+            onPress={() => onPress('oauth_google')}
+          >
+            <Image source={require('@/assets/icons/google.png')} />
+            <Text style={styles.socialButtonText}>Continue with Google</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.socialButton, { backgroundColor: '#000000' }]}
+            onPress={() => onPress('oauth_apple')}
+          >
+            <IonIcons name='logo-apple' size={24} color={'white'} />
+            <Text style={[styles.socialButtonText, { color: 'white' }]}>
+              Continue with Apple
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.socialButton, { backgroundColor: '#DE483A' }]}
+          >
+            <IonIcons name='mail' size={24} color={'white'} />
+            <Text style={[styles.socialButtonText, { color: 'white' }]}>
+              Continue with Email
+            </Text>
+          </TouchableOpacity>
+        </View>
       </View>
+      <Text style={styles.termsText}>
+        By continuing, you agree to our Terms of Service and Privacy Policy.
+      </Text>
     </SafeAreaView>
   );
 }
@@ -51,46 +94,56 @@ export default function Page() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'flex-start',
     alignItems: 'center',
+    justifyContent: 'flex-start',
+    paddingVertical: 16,
+    paddingHorizontal: 24,
+  },
+  logo: {
+    height: 40,
+    resizeMode: 'contain',
+    alignSelf: 'center',
+  },
+  contentContainer: {
+    flex: 1,
+    width: '100%',
+    justifyContent: 'center',
   },
   content: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'red',
-    gap: 24,
+    width: '100%',
   },
   title: {
-    fontSize: 36,
-    fontWeight: 'bold',
-    color: 'white',
+    fontSize: 26,
+    fontFamily: 'BricolageGrotesqueSemiBold',
     textAlign: 'center',
   },
-  footer: {
-    gap: 24,
+  lottie: {
+    width: '100%',
+    aspectRatio: 1,
   },
-  button: {
+  footer: {
+    width: '100%',
+    gap: 14,
+  },
+  socialButton: {
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 12,
-    paddingHorizontal: 24,
-    paddingVertical: 16,
-    borderRadius: 12,
-    borderWidth: 1,
+    borderRadius: 24,
     borderColor: 'gray',
+    borderWidth: StyleSheet.hairlineWidth,
+    gap: 10,
+    paddingVertical: 12,
   },
-  buttonText: {
+  socialButtonText: {
     fontSize: 16,
-    fontWeight: 'bold',
-    color: 'black',
-    textAlign: 'center',
+    fontFamily: 'BricolageGrotesqueBold',
   },
-  buttonIcon: {
-    width: 24,
-    aspectRatio: 1,
-    objectFit: 'contain',
+  termsText: {
+    fontSize: 14,
+    fontFamily: 'BricolageGrotesqueRegular',
+    textAlign: 'center',
+    color: 'gray',
   },
 });
