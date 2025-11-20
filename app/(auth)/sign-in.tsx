@@ -41,6 +41,10 @@ export default function Page() {
     []
   );
 
+  const onPressEmail = useCallback(() => {
+    router.push('/sign-in-with-email');
+  }, []);
+
   return (
     <SafeAreaView style={styles.container}>
       <Stack.Screen options={{ headerShown: false }} />
@@ -76,6 +80,7 @@ export default function Page() {
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.socialButton, { backgroundColor: '#DE483A' }]}
+            onPress={onPressEmail}
           >
             <IonIcons name='mail' size={24} color={'white'} />
             <Text style={[styles.socialButtonText, { color: 'white' }]}>

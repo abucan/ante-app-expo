@@ -8,5 +8,13 @@ export default function AuthRoutesLayout() {
     return <Redirect href={'/'} />;
   }
 
-  return <Stack />;
+  return (
+    <Stack>
+      <Stack.Screen name='sign-in' options={{ headerShown: false }} />
+      <Stack.Screen
+        name='sign-in-with-email'
+        options={{ headerShown: false, presentation: 'modal' }}
+      />
+    </Stack>
+  );
 }
