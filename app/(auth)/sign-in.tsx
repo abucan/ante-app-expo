@@ -130,11 +130,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 24,
+    borderRadius: 48,
     borderColor: 'gray',
     borderWidth: StyleSheet.hairlineWidth,
     gap: 10,
-    paddingVertical: 12,
+    paddingVertical: 14,
   },
   socialButtonText: {
     fontSize: 16,
