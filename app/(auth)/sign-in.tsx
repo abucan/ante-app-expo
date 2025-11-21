@@ -1,11 +1,15 @@
-import { useSSO } from '@clerk/clerk-expo';
-import IonIcons from '@expo/vector-icons/Ionicons';
-import { router, Stack } from 'expo-router';
-import { maybeCompleteAuthSession } from 'expo-web-browser';
-import LottieView from 'lottie-react-native';
 import React, { useCallback } from 'react';
+
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+
+import { Stack, router } from 'expo-router';
+import { maybeCompleteAuthSession } from 'expo-web-browser';
+
+import { useSSO } from '@clerk/clerk-expo';
+
+import IonIcons from '@expo/vector-icons/Ionicons';
+import LottieView from 'lottie-react-native';
 
 maybeCompleteAuthSession();
 
@@ -15,7 +19,7 @@ export default function Page() {
   const onPress = useCallback(
     async (provider: 'oauth_google' | 'oauth_apple') => {
       try {
-        const { createdSessionId, setActive } = await startSSOFlow({
+        const { setActive, createdSessionId } = await startSSOFlow({
           strategy: provider,
         });
 
@@ -38,7 +42,7 @@ export default function Page() {
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    []
+    [],
   );
 
   const onPressEmail = useCallback(() => {
@@ -51,9 +55,7 @@ export default function Page() {
       <Image source={require('@/assets/logo.png')} style={styles.logo} />
       <View style={styles.contentContainer}>
         <View style={styles.content}>
-          <Text style={styles.title}>
-            Organize your tasks, habits and finances with ease
-          </Text>
+          <Text style={styles.title}>Organize your tasks, habits and finances with ease</Text>
           <LottieView
             source={require('@/assets/lottie.json')}
             style={styles.lottie}
@@ -63,27 +65,27 @@ export default function Page() {
         </View>
         <View style={styles.footer}>
           <TouchableOpacity
-            style={[styles.socialButton, { backgroundColor: '#F2F2F2' }]}
+            style={[styles.socialButton, styles.socialButtonGoogle]}
             onPress={() => onPress('oauth_google')}
           >
             <Image source={require('@/assets/icons/google.png')} />
             <Text style={styles.socialButtonText}>Continue with Google</Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={[styles.socialButton, { backgroundColor: '#000000' }]}
+            style={[styles.socialButton, styles.socialButtonApple]}
             onPress={() => onPress('oauth_apple')}
           >
-            <IonIcons name='logo-apple' size={24} color={'white'} />
-            <Text style={[styles.socialButtonText, { color: 'white' }]}>
+            <IonIcons name="logo-apple" size={24} color={'white'} />
+            <Text style={[styles.socialButtonText, styles.socialButtonTextApple]}>
               Continue with Apple
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={[styles.socialButton, { backgroundColor: '#DE483A' }]}
+            style={[styles.socialButton, styles.socialButtonEmail]}
             onPress={onPressEmail}
           >
-            <IonIcons name='mail' size={24} color={'white'} />
-            <Text style={[styles.socialButtonText, { color: 'white' }]}>
+            <IonIcons name="mail" size={24} color={'white'} />
+            <Text style={[styles.socialButtonText, styles.socialButtonTextEmail]}>
               Continue with Email
             </Text>
           </TouchableOpacity>
@@ -97,58 +99,73 @@ export default function Page() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'flex-start',
-    paddingVertical: 16,
-    paddingHorizontal: 24,
+  content: {
+    width: '100%',
+  },
+  footer: {
+    gap: 14,
+    width: '100%',
+  },
+  socialButtonTextEmail: {
+    color: 'white',
+  },
+  socialButtonTextApple: {
+    color: 'white',
+  },
+  lottie: {
+    width: '100%',
+    aspectRatio: 1,
+  },
+  socialButtonEmail: {
+    backgroundColor: '#DE483A',
+  },
+  socialButtonApple: {
+    backgroundColor: '#000000',
+  },
+  socialButtonGoogle: {
+    backgroundColor: '#F2F2F2',
   },
   logo: {
     height: 40,
-    resizeMode: 'contain',
     alignSelf: 'center',
+    resizeMode: 'contain',
+  },
+  socialButtonText: {
+    fontSize: 16,
+    fontFamily: 'BricolageGrotesqueBold',
   },
   contentContainer: {
     flex: 1,
     width: '100%',
     justifyContent: 'center',
   },
-  content: {
-    width: '100%',
-  },
   title: {
     fontSize: 26,
-    fontFamily: 'BricolageGrotesqueSemiBold',
     textAlign: 'center',
-  },
-  lottie: {
-    width: '100%',
-    aspectRatio: 1,
-  },
-  footer: {
-    width: '100%',
-    gap: 14,
-  },
-  socialButton: {
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: 48,
-    borderColor: 'gray',
-    borderWidth: StyleSheet.hairlineWidth,
-    gap: 10,
-    paddingVertical: 14,
-  },
-  socialButtonText: {
-    fontSize: 16,
-    fontFamily: 'BricolageGrotesqueBold',
+    fontFamily: 'BricolageGrotesqueSemiBold',
   },
   termsText: {
     fontSize: 14,
-    fontFamily: 'BricolageGrotesqueRegular',
-    textAlign: 'center',
     color: 'gray',
+    textAlign: 'center',
+    fontFamily: 'BricolageGrotesqueRegular',
+  },
+  container: {
+    flex: 1,
+    paddingVertical: 16,
+    alignItems: 'center',
+    paddingHorizontal: 24,
+    justifyContent: 'flex-start',
+  },
+  socialButton: {
+    gap: 10,
+    display: 'flex',
+    borderRadius: 48,
+    borderColor: 'gray',
+    paddingVertical: 14,
+    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    borderWidth: StyleSheet.hairlineWidth,
   },
 });

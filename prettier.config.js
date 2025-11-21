@@ -1,0 +1,20 @@
+export default {
+  printWidth: 100,
+  singleQuote: true,
+  trailingComma: 'all',
+  importOrderSeparation: true,
+  importOrderSortSpecifiers: true,
+  plugins: ['@trivago/prettier-plugin-sort-imports'],
+  importOrder: [
+    '^react$',
+    '^(react-native|react-native-.+)$',
+    '^expo(.*)$',
+    '^@clerk/.*$',
+    '<THIRD_PARTY_MODULES>',
+    '^@/components/(.*)$',
+    '^@/hooks/(.*)$',
+    '^@/utils/(.*)$',
+    '^@/(.*)$',
+    '^[./]',
+  ],
+};
