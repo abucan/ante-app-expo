@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 import {
   ActivityIndicator,
@@ -9,6 +9,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import SegmentedControl from 'react-native-segmented-control-2';
 
 import { router } from 'expo-router';
 
@@ -78,17 +79,41 @@ export default function SignInWithEmail() {
     }
   };
 
+  const options = ['Light', 'Standard', 'Pro'];
+  const [selectedOption, setSelectedOption] = useState('Standard');
+
   return (
     <SafeAreaView style={styles.container}>
       <TextInput ref={hiddenInputRef} autoFocus editable style={styles.hiddenInput} />
 
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Sign in</Text>
+        <View style={styles.segmentedControlWrapper}>
+          <SegmentedControl
+            tabs={['One', 'Two']}
+            value={options.indexOf(selectedOption)}
+            onChange={(index: number) => {
+              setSelectedOption(options[index]);
+            }}
+            style={{
+              borderRadius: 48,
+              alignSelf: 'center',
+            }}
+            tabStyle={{
+              height: 50,
+              borderRadius: 48,
+            }}
+            selectedTabStyle={{
+              borderRadius: 48,
+              backgroundColor: '#DE483A',
+            }}
+          />
+        </View>
         <TouchableOpacity onPress={handleClose} style={styles.closeButton}>
-          <IonIcons name="close" size={24} color="#000000" />
+          <IonIcons name="close" size={24} color="#000000" style={{ padding: 8 }} />
         </TouchableOpacity>
       </View>
 
+      <Text style={styles.headerTitle}>Sign in to your account</Text>
       <View style={styles.content}>
         <Controller
           control={control}
@@ -96,12 +121,6 @@ export default function SignInWithEmail() {
           render={({ field: { value, onBlur, onChange } }) => (
             <View>
               <View style={[styles.inputContainer, errors.email && styles.inputContainerError]}>
-                <IonIcons
-                  name="mail-outline"
-                  size={20}
-                  color={errors.email ? '#EF5350' : '#666666'}
-                  style={styles.inputIcon}
-                />
                 <TextInput
                   style={styles.input}
                   placeholder="Email"
@@ -126,12 +145,6 @@ export default function SignInWithEmail() {
           render={({ field: { value, onBlur, onChange } }) => (
             <View>
               <View style={[styles.inputContainer, errors.password && styles.inputContainerError]}>
-                <IonIcons
-                  name="lock-closed-outline"
-                  size={20}
-                  color={errors.password ? '#EF5350' : '#666666'}
-                  style={styles.inputIcon}
-                />
                 <TextInput
                   style={styles.input}
                   placeholder="Password"
@@ -144,6 +157,9 @@ export default function SignInWithEmail() {
                   autoComplete="password"
                   editable={!isSubmitting}
                 />
+                <TouchableOpacity onPress={() => console.log('show password')}>
+                  <IonIcons name="eye-outline" size={20} color="#666666" />
+                </TouchableOpacity>
               </View>
               {errors.password && <Text style={styles.fieldError}>{errors.password.message}</Text>}
             </View>
@@ -161,34 +177,38 @@ export default function SignInWithEmail() {
             <Text style={styles.submitButtonText}>Sign in</Text>
           )}
         </TouchableOpacity>
+        <TouchableOpacity onPress={() => console.log('forgot password')}>
+          <Text style={styles.linkText}>Forgot your password?</Text>
+        </TouchableOpacity>
       </View>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  closeButton: {
-    padding: 4,
-  },
   inputIcon: {
     marginRight: 12,
   },
   submitButtonDisabled: {
     opacity: 0.6,
   },
+  segmentedControlWrapper: {
+    flex: 1,
+    flexShrink: 1,
+  },
+  content: {
+    flex: 1,
+    gap: 20,
+    paddingHorizontal: 24,
+  },
   container: {
     flex: 1,
+    gap: 24,
     backgroundColor: '#FFFFFF',
   },
   inputContainerError: {
     borderColor: '#EF5350',
     backgroundColor: '#FFF5F5',
-  },
-  content: {
-    flex: 1,
-    gap: 20,
-    paddingTop: 32,
-    paddingHorizontal: 24,
   },
   headerTitle: {
     fontSize: 20,
@@ -234,17 +254,24 @@ const styles = StyleSheet.create({
     color: '#EF5350',
     fontFamily: 'BricolageGrotesqueRegular',
   },
-  submitButton: {
-    marginTop: 8,
-    borderRadius: 12,
-    paddingVertical: 16,
+  closeButton: {
+    width: 50,
+    height: 50,
+    borderRadius: 48,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#000000',
+    backgroundColor: '#F2F2F2',
+  },
+  linkText: {
+    fontSize: 14,
+    color: '#666666',
+    textAlign: 'center',
+    textDecorationLine: 'underline',
+    fontFamily: 'BricolageGrotesqueRegular',
   },
   inputContainer: {
     borderWidth: 1,
-    borderRadius: 12,
+    borderRadius: 48,
     paddingVertical: 14,
     alignItems: 'center',
     flexDirection: 'row',
@@ -253,12 +280,25 @@ const styles = StyleSheet.create({
     backgroundColor: '#FAFAFA',
   },
   header: {
-    paddingVertical: 16,
-    alignItems: 'center',
+    paddingTop: 16,
+    display: 'flex',
     flexDirection: 'row',
-    paddingHorizontal: 24,
+    alignItems: 'center',
+    paddingHorizontal: 20,
     borderBottomColor: '#E5E5E5',
     justifyContent: 'space-between',
-    borderBottomWidth: StyleSheet.hairlineWidth,
+    // borderBottomWidth: StyleSheet.hairlineWidth,
+  },
+  submitButton: {
+    gap: 10,
+    display: 'flex',
+    borderRadius: 48,
+    borderColor: 'gray',
+    paddingVertical: 14,
+    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    backgroundColor: '#DE483A',
+    borderWidth: StyleSheet.hairlineWidth,
   },
 });
