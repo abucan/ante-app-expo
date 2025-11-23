@@ -12,6 +12,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import SegmentedControl from 'react-native-segmented-control-2';
 
 import { router } from 'expo-router';
+import { StatusBar } from 'expo-status-bar';
 
 import { useSignIn } from '@clerk/clerk-expo';
 
@@ -21,27 +22,27 @@ import { Controller, useForm } from 'react-hook-form';
 import { z } from 'zod';
 
 const signInSchema = z.object({
-  password: z.string().min(1, 'Password is required'),
   email: z.string().min(1, 'Email is required').email('Please enter a valid email address'),
+  password: z.string().min(1, 'Password is required'),
 });
 
 type SignInFormData = z.infer<typeof signInSchema>;
 
 export default function SignInWithEmail() {
-  const { signIn, isLoaded, setActive } = useSignIn();
+  const { isLoaded, setActive, signIn } = useSignIn();
   const hiddenInputRef = useRef<TextInput>(null);
 
   const {
     control,
-    setError,
-    handleSubmit,
     formState: { errors, isSubmitting },
+    handleSubmit,
+    setError,
   } = useForm<SignInFormData>({
-    resolver: zodResolver(signInSchema),
     defaultValues: {
       email: '',
       password: '',
     },
+    resolver: zodResolver(signInSchema),
   });
 
   useEffect(() => {
@@ -73,52 +74,41 @@ export default function SignInWithEmail() {
 
       // Set error on password field for authentication failures
       setError('password', {
-        type: 'manual',
         message: errorMessage,
+        type: 'manual',
       });
     }
   };
 
-  const options = ['Light', 'Standard', 'Pro'];
-  const [selectedOption, setSelectedOption] = useState('Standard');
+  const options = ['Sign In', 'Sign Up'];
+  const [selectedOption, setSelectedOption] = useState('Sign In');
 
   return (
     <SafeAreaView style={styles.container}>
+      <StatusBar style="light" />
       <TextInput ref={hiddenInputRef} autoFocus editable style={styles.hiddenInput} />
 
       <View style={styles.header}>
-        <View style={styles.segmentedControlWrapper}>
-          <SegmentedControl
-            tabs={['One', 'Two']}
-            value={options.indexOf(selectedOption)}
-            onChange={(index: number) => {
-              setSelectedOption(options[index]);
-            }}
-            style={{
-              borderRadius: 48,
-              alignSelf: 'center',
-            }}
-            tabStyle={{
-              height: 50,
-              borderRadius: 48,
-            }}
-            selectedTabStyle={{
-              borderRadius: 48,
-              backgroundColor: '#DE483A',
-            }}
-          />
-        </View>
+        <SegmentedControl
+          tabs={options}
+          value={options.indexOf(selectedOption)}
+          onChange={(index: number) => {
+            setSelectedOption(options[index]);
+          }}
+          style={styles.segmentedControl}
+          tabStyle={styles.segmentedControlTab}
+          selectedTabStyle={styles.segmentedControlSelectedTab}
+        />
         <TouchableOpacity onPress={handleClose} style={styles.closeButton}>
-          <IonIcons name="close" size={24} color="#000000" style={{ padding: 8 }} />
+          <IonIcons name="close" size={24} color="#000000" />
         </TouchableOpacity>
       </View>
 
-      <Text style={styles.headerTitle}>Sign in to your account</Text>
       <View style={styles.content}>
         <Controller
           control={control}
           name="email"
-          render={({ field: { value, onBlur, onChange } }) => (
+          render={({ field: { onBlur, onChange, value } }) => (
             <View>
               <View style={[styles.inputContainer, errors.email && styles.inputContainerError]}>
                 <TextInput
@@ -142,7 +132,7 @@ export default function SignInWithEmail() {
         <Controller
           control={control}
           name="password"
-          render={({ field: { value, onBlur, onChange } }) => (
+          render={({ field: { onBlur, onChange, value } }) => (
             <View>
               <View style={[styles.inputContainer, errors.password && styles.inputContainerError]}>
                 <TextInput
@@ -186,119 +176,130 @@ export default function SignInWithEmail() {
 }
 
 const styles = StyleSheet.create({
-  inputIcon: {
-    marginRight: 12,
+  closeButton: {
+    alignItems: 'center',
+    backgroundColor: '#F2F2F2',
+    borderRadius: 48,
+    height: 50,
+    justifyContent: 'center',
+    width: 50,
   },
-  submitButtonDisabled: {
-    opacity: 0.6,
-  },
-  segmentedControlWrapper: {
+  container: {
+    backgroundColor: '#FFFFFF',
     flex: 1,
-    flexShrink: 1,
+    gap: 26,
   },
   content: {
     flex: 1,
     gap: 20,
     paddingHorizontal: 24,
   },
-  container: {
-    flex: 1,
-    gap: 24,
-    backgroundColor: '#FFFFFF',
-  },
-  inputContainerError: {
+  errorContainer: {
+    backgroundColor: '#FFEBEE',
     borderColor: '#EF5350',
-    backgroundColor: '#FFF5F5',
-  },
-  headerTitle: {
-    fontSize: 20,
-    color: '#000000',
-    fontFamily: 'BricolageGrotesqueBold',
+    borderRadius: 8,
+    borderWidth: 1,
+    padding: 12,
   },
   errorText: {
-    fontSize: 14,
     color: '#C62828',
     fontFamily: 'BricolageGrotesqueRegular',
-  },
-  submitButtonText: {
-    fontSize: 16,
-    color: '#FFFFFF',
-    fontFamily: 'BricolageGrotesqueBold',
-  },
-  hiddenInput: {
-    top: 0,
-    left: 0,
-    width: 1,
-    height: 1,
-    opacity: 0.01,
-    position: 'absolute',
-  },
-  input: {
-    flex: 1,
-    padding: 0,
-    fontSize: 16,
-    color: '#000000',
-    fontFamily: 'BricolageGrotesqueRegular',
-  },
-  errorContainer: {
-    padding: 12,
-    borderWidth: 1,
-    borderRadius: 8,
-    borderColor: '#EF5350',
-    backgroundColor: '#FFEBEE',
+    fontSize: 14,
   },
   fieldError: {
-    fontSize: 12,
-    marginTop: 4,
-    marginLeft: 4,
     color: '#EF5350',
     fontFamily: 'BricolageGrotesqueRegular',
-  },
-  closeButton: {
-    width: 50,
-    height: 50,
-    borderRadius: 48,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#F2F2F2',
-  },
-  linkText: {
-    fontSize: 14,
-    color: '#666666',
-    textAlign: 'center',
-    textDecorationLine: 'underline',
-    fontFamily: 'BricolageGrotesqueRegular',
-  },
-  inputContainer: {
-    borderWidth: 1,
-    borderRadius: 48,
-    paddingVertical: 14,
-    alignItems: 'center',
-    flexDirection: 'row',
-    paddingHorizontal: 16,
-    borderColor: '#E5E5E5',
-    backgroundColor: '#FAFAFA',
+    fontSize: 12,
+    marginLeft: 4,
+    marginTop: 4,
   },
   header: {
-    paddingTop: 16,
-    display: 'flex',
-    flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 20,
     borderBottomColor: '#E5E5E5',
-    justifyContent: 'space-between',
-    // borderBottomWidth: StyleSheet.hairlineWidth,
-  },
-  submitButton: {
-    gap: 10,
     display: 'flex',
-    borderRadius: 48,
-    borderColor: 'gray',
-    paddingVertical: 14,
-    alignItems: 'center',
     flexDirection: 'row',
-    justifyContent: 'center',
+
+    gap: 12,
+    paddingHorizontal: 20,
+    paddingTop: 16,
+  },
+  headerTitle: {
+    color: '#000000',
+    fontFamily: 'BricolageGrotesqueBold',
+    fontSize: 20,
+  },
+  hiddenInput: {
+    height: 1,
+    left: 0,
+    opacity: 0.01,
+    position: 'absolute',
+    top: 0,
+    width: 1,
+  },
+  input: {
+    color: '#000000',
+    flex: 1,
+    fontFamily: 'BricolageGrotesqueRegular',
+    fontSize: 16,
+    padding: 0,
+  },
+  inputContainer: {
+    alignItems: 'center',
+    backgroundColor: '#FAFAFA',
+    borderColor: '#E5E5E5',
+    borderRadius: 48,
+    borderWidth: 1,
+    flexDirection: 'row',
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+  },
+  inputContainerError: {
+    backgroundColor: '#FFF5F5',
+    borderColor: '#EF5350',
+  },
+  inputIcon: {
+    marginRight: 12,
+  },
+  linkText: {
+    color: '#666666',
+    fontFamily: 'BricolageGrotesqueRegular',
+    fontSize: 14,
+    textAlign: 'center',
+    textDecorationLine: 'underline',
+  },
+  segmentedControl: {
+    borderRadius: 48,
+    display: 'flex',
+    flex: 1,
+    width: '100%',
+  },
+  segmentedControlSelectedTab: {
     backgroundColor: '#DE483A',
+    borderRadius: 48,
+  },
+  segmentedControlTab: {
+    borderRadius: 48,
+    height: 50,
+  },
+  segmentedControlWrapper: {},
+  submitButton: {
+    alignItems: 'center',
+    backgroundColor: '#DE483A',
+    borderColor: 'gray',
+    borderRadius: 48,
     borderWidth: StyleSheet.hairlineWidth,
+    display: 'flex',
+    flexDirection: 'row',
+    gap: 10,
+    justifyContent: 'center',
+    paddingVertical: 14,
+  },
+  submitButtonDisabled: {
+    opacity: 0.6,
+  },
+  submitButtonText: {
+    color: '#FFFFFF',
+    fontFamily: 'BricolageGrotesqueBold',
+    fontSize: 16,
   },
 });

@@ -19,13 +19,12 @@ export default function Page() {
   const onPress = useCallback(
     async (provider: 'oauth_google' | 'oauth_apple') => {
       try {
-        const { setActive, createdSessionId } = await startSSOFlow({
+        const { createdSessionId, setActive } = await startSSOFlow({
           strategy: provider,
         });
 
         if (createdSessionId) {
           setActive!({
-            session: createdSessionId,
             navigate: async ({ session }) => {
               if (session?.currentTask) {
                 console.log(session?.currentTask);
@@ -35,6 +34,7 @@ export default function Page() {
 
               router.push('/');
             },
+            session: createdSessionId,
           });
         }
       } catch (err) {
@@ -99,73 +99,73 @@ export default function Page() {
 }
 
 const styles = StyleSheet.create({
+  container: {
+    alignItems: 'center',
+    flex: 1,
+    justifyContent: 'flex-start',
+    paddingHorizontal: 24,
+    paddingVertical: 16,
+  },
   content: {
+    width: '100%',
+  },
+  contentContainer: {
+    flex: 1,
+    justifyContent: 'center',
     width: '100%',
   },
   footer: {
     gap: 14,
     width: '100%',
   },
-  socialButtonTextEmail: {
-    color: 'white',
-  },
-  socialButtonTextApple: {
-    color: 'white',
+  logo: {
+    alignSelf: 'center',
+    height: 40,
+    resizeMode: 'contain',
   },
   lottie: {
-    width: '100%',
     aspectRatio: 1,
+    width: '100%',
   },
-  socialButtonEmail: {
-    backgroundColor: '#DE483A',
+  socialButton: {
+    alignItems: 'center',
+    borderColor: 'gray',
+    borderRadius: 48,
+    borderWidth: StyleSheet.hairlineWidth,
+    display: 'flex',
+    flexDirection: 'row',
+    gap: 10,
+    justifyContent: 'center',
+    paddingVertical: 14,
   },
   socialButtonApple: {
     backgroundColor: '#000000',
   },
+  socialButtonEmail: {
+    backgroundColor: '#DE483A',
+  },
   socialButtonGoogle: {
     backgroundColor: '#F2F2F2',
   },
-  logo: {
-    height: 40,
-    alignSelf: 'center',
-    resizeMode: 'contain',
-  },
   socialButtonText: {
-    fontSize: 16,
     fontFamily: 'BricolageGrotesqueBold',
+    fontSize: 16,
   },
-  contentContainer: {
-    flex: 1,
-    width: '100%',
-    justifyContent: 'center',
+  socialButtonTextApple: {
+    color: 'white',
   },
-  title: {
-    fontSize: 26,
-    textAlign: 'center',
-    fontFamily: 'BricolageGrotesqueSemiBold',
+  socialButtonTextEmail: {
+    color: 'white',
   },
   termsText: {
-    fontSize: 14,
     color: 'gray',
-    textAlign: 'center',
     fontFamily: 'BricolageGrotesqueRegular',
+    fontSize: 14,
+    textAlign: 'center',
   },
-  container: {
-    flex: 1,
-    paddingVertical: 16,
-    alignItems: 'center',
-    paddingHorizontal: 24,
-    justifyContent: 'flex-start',
-  },
-  socialButton: {
-    gap: 10,
-    display: 'flex',
-    borderRadius: 48,
-    borderColor: 'gray',
-    paddingVertical: 14,
-    alignItems: 'center',
-    flexDirection: 'row',
-    justifyContent: 'center',
-    borderWidth: StyleSheet.hairlineWidth,
+  title: {
+    fontFamily: 'BricolageGrotesqueSemiBold',
+    fontSize: 26,
+    textAlign: 'center',
   },
 });

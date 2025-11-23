@@ -16,12 +16,12 @@ const convex = new ConvexReactClient(process.env.EXPO_PUBLIC_CONVEX_URL!, {
 export default function RootLayout() {
   const [loaded] = useFonts({
     BricolageGrotesqueBold: require('@/assets/fonts/BricolageGrotesque-Bold.ttf'),
+    BricolageGrotesqueExtraBold: require('@/assets/fonts/BricolageGrotesque-ExtraBold.ttf'),
+    BricolageGrotesqueExtraLight: require('@/assets/fonts/BricolageGrotesque-ExtraLight.ttf'),
     BricolageGrotesqueLight: require('@/assets/fonts/BricolageGrotesque-Light.ttf'),
     BricolageGrotesqueMedium: require('@/assets/fonts/BricolageGrotesque-Medium.ttf'),
     BricolageGrotesqueRegular: require('@/assets/fonts/BricolageGrotesque-Regular.ttf'),
     BricolageGrotesqueSemiBold: require('@/assets/fonts/BricolageGrotesque-SemiBold.ttf'),
-    BricolageGrotesqueExtraBold: require('@/assets/fonts/BricolageGrotesque-ExtraBold.ttf'),
-    BricolageGrotesqueExtraLight: require('@/assets/fonts/BricolageGrotesque-ExtraLight.ttf'),
   });
 
   useEffect(() => {

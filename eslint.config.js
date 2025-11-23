@@ -12,20 +12,20 @@ module.exports = defineConfig([
   globalIgnores(['dist/*']),
   {
     plugins: {
-      react,
       perfectionist,
+      react,
       'react-native': reactNative,
     },
     rules: {
       'perfectionist/sort-imports': 'off',
-      'react-native/no-inline-styles': 'error',
       'perfectionist/sort-object-types': 'off',
       'perfectionist/sort-objects': [
         'error',
         {
-          type: 'line-length',
+          type: 'alphabetical',
         },
       ],
+      'react-native/no-inline-styles': 'error',
     },
   },
 ]);
