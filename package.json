@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@clerk/clerk-expo": "^2.19.0",
+    "@expo/ui": "~0.2.0-beta.7",
     "@expo/vector-icons": "^15.0.3",
     "@hookform/resolvers": "^5.2.2",
     "@react-navigation/bottom-tabs": "^7.4.0",

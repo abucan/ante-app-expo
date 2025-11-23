@@ -32,7 +32,7 @@ export default function Page() {
                 return;
               }
 
-              router.push('/');
+              router.push('/(tasks)/daily-tasks');
             },
             session: createdSessionId,
           });

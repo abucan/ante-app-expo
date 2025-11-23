@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 
 import {
   ActivityIndicator,
+  Alert,
   StyleSheet,
   Text,
   TextInput,
@@ -14,7 +15,7 @@ import SegmentedControl from 'react-native-segmented-control-2';
 import { router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 
-import { useSignIn } from '@clerk/clerk-expo';
+import { useSignIn, useSignUp } from '@clerk/clerk-expo';
 
 import IonIcons from '@expo/vector-icons/Ionicons';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -22,7 +23,7 @@ import { Controller, useForm } from 'react-hook-form';
 import { z } from 'zod';
 
 const signInSchema = z.object({
-  email: z.string().min(1, 'Email is required').email('Please enter a valid email address'),
+  email: z.email('Please enter a valid email address'),
   password: z.string().min(1, 'Password is required'),
 });
 
@@ -30,13 +31,16 @@ type SignInFormData = z.infer<typeof signInSchema>;
 
 export default function SignInWithEmail() {
   const { isLoaded, setActive, signIn } = useSignIn();
+  const { isLoaded: isSignUpLoaded, setActive: setActiveSignUp, signUp } = useSignUp();
+
+  const [isSignIn, setIsSignIn] = useState(true);
+
   const hiddenInputRef = useRef<TextInput>(null);
 
   const {
     control,
     formState: { errors, isSubmitting },
     handleSubmit,
-    setError,
   } = useForm<SignInFormData>({
     defaultValues: {
       email: '',
@@ -56,7 +60,7 @@ export default function SignInWithEmail() {
     router.back();
   };
 
-  const onSubmit = async (data: SignInFormData) => {
+  const handleSignIn = async (data: SignInFormData) => {
     if (!isLoaded) return;
 
     try {
@@ -67,16 +71,38 @@ export default function SignInWithEmail() {
 
       if (result.status === 'complete') {
         await setActive!({ session: result.createdSessionId });
-        router.replace('/');
+        router.replace('/(tasks)/daily-tasks');
       }
     } catch (err: any) {
       const errorMessage = err.errors?.[0]?.message || 'Invalid email or password';
+      Alert.alert('Error', errorMessage);
+    }
+  };
 
-      // Set error on password field for authentication failures
-      setError('password', {
-        message: errorMessage,
-        type: 'manual',
+  const handleSignUp = async (data: SignInFormData) => {
+    if (!isSignUpLoaded) return;
+
+    try {
+      const result = await signUp.create({
+        emailAddress: data.email,
+        password: data.password,
       });
+
+      if (result.status === 'complete') {
+        await setActiveSignUp!({ session: result.createdSessionId });
+        router.replace('/(tasks)/daily-tasks');
+      }
+    } catch (err: any) {
+      const errorMessage = err.errors?.[0]?.message || 'Invalid email or password';
+      Alert.alert('Error', errorMessage);
+    }
+  };
+
+  const onSubmit = async (data: SignInFormData) => {
+    if (isSignIn) {
+      await handleSignIn(data);
+    } else {
+      await handleSignUp(data);
     }
   };
 
@@ -94,7 +120,10 @@ export default function SignInWithEmail() {
           value={options.indexOf(selectedOption)}
           onChange={(index: number) => {
             setSelectedOption(options[index]);
+            setIsSignIn(index === 0 ? true : false);
           }}
+          activeTextColor="#FFFFFF"
+          textStyle={styles.segmentedControlText}
           style={styles.segmentedControl}
           tabStyle={styles.segmentedControlTab}
           selectedTabStyle={styles.segmentedControlSelectedTab}
@@ -151,7 +180,6 @@ export default function SignInWithEmail() {
                   <IonIcons name="eye-outline" size={20} color="#666666" />
                 </TouchableOpacity>
               </View>
-              {errors.password && <Text style={styles.fieldError}>{errors.password.message}</Text>}
             </View>
           )}
         />
@@ -164,12 +192,14 @@ export default function SignInWithEmail() {
           {isSubmitting ? (
             <ActivityIndicator color="#FFFFFF" />
           ) : (
-            <Text style={styles.submitButtonText}>Sign in</Text>
+            <Text style={styles.submitButtonText}>{isSignIn ? 'Sign in' : 'Sign up'}</Text>
           )}
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => console.log('forgot password')}>
-          <Text style={styles.linkText}>Forgot your password?</Text>
-        </TouchableOpacity>
+        {isSignIn && (
+          <TouchableOpacity onPress={() => console.log('forgot password')}>
+            <Text style={styles.linkText}>Forgot your password?</Text>
+          </TouchableOpacity>
+        )}
       </View>
     </SafeAreaView>
   );
@@ -276,10 +306,15 @@ const styles = StyleSheet.create({
   segmentedControlSelectedTab: {
     backgroundColor: '#DE483A',
     borderRadius: 48,
+    color: '#FFFFFF',
+    shadowOpacity: 0,
   },
   segmentedControlTab: {
     borderRadius: 48,
     height: 50,
+  },
+  segmentedControlText: {
+    fontFamily: 'BricolageGrotesqueBold',
   },
   segmentedControlWrapper: {},
   submitButton: {
