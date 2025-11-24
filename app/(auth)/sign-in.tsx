@@ -1,17 +1,17 @@
 import React, { useCallback } from 'react';
 
-import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Stack, router } from 'expo-router';
-import { maybeCompleteAuthSession } from 'expo-web-browser';
+import * as WebBrowser from 'expo-web-browser';
 
 import { useSSO } from '@clerk/clerk-expo';
 
 import IonIcons from '@expo/vector-icons/Ionicons';
 import LottieView from 'lottie-react-native';
 
-maybeCompleteAuthSession();
+WebBrowser.maybeCompleteAuthSession();
 
 export default function Page() {
   const { startSSOFlow } = useSSO();
@@ -19,7 +19,7 @@ export default function Page() {
   const onPress = useCallback(
     async (provider: 'oauth_google' | 'oauth_apple') => {
       try {
-        const { createdSessionId, setActive } = await startSSOFlow({
+        const { createdSessionId, setActive, signIn, signUp } = await startSSOFlow({
           strategy: provider,
         });
 
@@ -28,17 +28,22 @@ export default function Page() {
             navigate: async ({ session }) => {
               if (session?.currentTask) {
                 console.log(session?.currentTask);
-                router.push('/sign-in');
+                router.replace('/sign-in');
                 return;
               }
 
-              router.push('/(tasks)/daily-tasks');
+              router.replace('/(tabs)/tasks');
             },
             session: createdSessionId,
           });
+        } else if (signIn || signUp) {
+          Alert.alert('Additional Steps Required', 'Please complete the authentication process.');
         }
       } catch (err) {
-        console.error(JSON.stringify(err, null, 2));
+        const errorMessage =
+          (err as any)?.errors?.[0]?.message || (err as any)?.message || 'Authentication failed';
+        console.error('SSO Error:', JSON.stringify(err, null, 2));
+        Alert.alert('Authentication Error', errorMessage);
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps

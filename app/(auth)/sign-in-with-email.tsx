@@ -24,7 +24,12 @@ import { z } from 'zod';
 
 const signInSchema = z.object({
   email: z.email('Please enter a valid email address'),
-  password: z.string().min(1, 'Password is required'),
+  password: z
+    .string()
+    .min(8, 'Password must be at least 8 characters')
+    .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
+    .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
+    .regex(/[0-9]/, 'Password must contain at least one number'),
 });
 
 type SignInFormData = z.infer<typeof signInSchema>;
@@ -71,7 +76,9 @@ export default function SignInWithEmail() {
 
       if (result.status === 'complete') {
         await setActive!({ session: result.createdSessionId });
-        router.replace('/(tasks)/daily-tasks');
+        router.replace('/(tabs)/tasks');
+      } else {
+        Alert.alert('Additional Steps Required', 'Please complete additional verification steps.');
       }
     } catch (err: any) {
       const errorMessage = err.errors?.[0]?.message || 'Invalid email or password';
@@ -90,7 +97,9 @@ export default function SignInWithEmail() {
 
       if (result.status === 'complete') {
         await setActiveSignUp!({ session: result.createdSessionId });
-        router.replace('/(tasks)/daily-tasks');
+        router.replace('/(tabs)/tasks');
+      } else if (result.status === 'missing_requirements') {
+        Alert.alert('Verification Required', 'Please check your email for a verification code.');
       }
     } catch (err: any) {
       const errorMessage = err.errors?.[0]?.message || 'Invalid email or password';

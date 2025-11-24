@@ -6,7 +6,7 @@ export default function Index() {
   const { isSignedIn } = useAuth();
 
   if (isSignedIn) {
-    return <Redirect href={'/daily-tasks'} />;
+    return <Redirect href={'/tasks'} />;
   }
   return <Redirect href={'/sign-in'} />;
 }
