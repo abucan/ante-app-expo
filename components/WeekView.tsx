@@ -16,6 +16,9 @@ type WeekViewProps = {
 function WeekView({ onSelectDay, selectedDate, startOfWeek }: WeekViewProps) {
   const days = getWeekDays(startOfWeek);
 
+  const formatWeekdayShort = (date: Date) => format(date, 'EEE');
+  const formatDayOfMonth = (date: Date) => format(date, 'd');
+
   return (
     <View style={styles.container}>
       {days.map((date) => {
@@ -27,8 +30,8 @@ function WeekView({ onSelectDay, selectedDate, startOfWeek }: WeekViewProps) {
             style={[styles.dayContainer, selected && styles.daySelected]}
             onPress={() => onSelectDay(date)}
           >
-            <Text style={styles.weekdayText}>{format(date, 'EEE')}</Text>
-            <Text style={styles.dayText}>{format(date, 'd')}</Text>
+            <Text style={styles.weekdayText}>{formatWeekdayShort(date)}</Text>
+            <Text style={styles.dayText}>{formatDayOfMonth(date)}</Text>
           </TouchableOpacity>
         );
       })}
@@ -47,6 +50,7 @@ const styles = StyleSheet.create({
   dayContainer: {
     alignItems: 'center',
     flex: 1,
+    justifyContent: 'center',
     paddingVertical: 8,
   },
   daySelected: {

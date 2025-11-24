@@ -19,3 +19,7 @@ export function getWeekDays(startOfWeekDate: Date): Date[] {
   }
   return days;
 }
+
+export function toUTCMidnight(date: Date): Date {
+  return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
+}

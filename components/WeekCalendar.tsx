@@ -2,7 +2,7 @@ import { useCallback, useMemo, useRef, useState } from 'react';
 
 import { Dimensions, FlatList, NativeScrollEvent, NativeSyntheticEvent, View } from 'react-native';
 
-import { getStartOfWeekForIndex, getStartOfWeekUTC } from '@/utils/week';
+import { getStartOfWeekForIndex, getStartOfWeekUTC, toUTCMidnight } from '@/utils/week';
 
 import WeekView from './WeekView';
 
@@ -13,11 +13,12 @@ type WeekCalendarProps = {
 };
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
-const TOTAL_WEEKS = 520;
+const ITEM_STYLE = { width: SCREEN_WIDTH };
+const TOTAL_WEEKS = 104;
 const CENTER_INDEX = Math.floor(TOTAL_WEEKS / 2);
 
-const today = new Date();
-const baseStartOfWeek = getStartOfWeekUTC(today);
+const todayUTC = toUTCMidnight(new Date());
+const baseStartOfWeek = getStartOfWeekUTC(todayUTC);
 
 function WeekCalendar({ onChangeValue, onWeekChange, value }: WeekCalendarProps) {
   const listRef = useRef<FlatList<number>>(null);
@@ -49,15 +50,15 @@ function WeekCalendar({ onChangeValue, onWeekChange, value }: WeekCalendarProps)
   );
 
   const renderItem = useCallback(
-    ({ index, item }: { item: number; index: number }) => {
+    ({ item }: { item: number }) => {
       const startOfWeek = getStartOfWeekForIndex(baseStartOfWeek, item);
       return (
-        <View style={{ width: SCREEN_WIDTH }}>
+        <View style={ITEM_STYLE}>
           <WeekView startOfWeek={startOfWeek} selectedDate={value} onSelectDay={onChangeValue} />
         </View>
       );
     },
-    [baseStartOfWeek, value, onChangeValue],
+    [value, onChangeValue], // baseStartOfWeek stable outside component
   );
 
   return (
@@ -72,6 +73,12 @@ function WeekCalendar({ onChangeValue, onWeekChange, value }: WeekCalendarProps)
       initialScrollIndex={CENTER_INDEX}
       renderItem={renderItem}
       onMomentumScrollEnd={handleMomentumEnd}
+      removeClippedSubviews
+      windowSize={3}
+      maxToRenderPerBatch={2}
+      initialNumToRender={1}
+      bounces={false}
+      alwaysBounceVertical={false}
     />
   );
 }
