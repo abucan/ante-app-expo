@@ -1,8 +1,17 @@
 import { useCallback, useMemo, useRef, useState } from 'react';
 
-import { Dimensions, FlatList, NativeScrollEvent, NativeSyntheticEvent, View } from 'react-native';
+import {
+  Dimensions,
+  FlatList,
+  NativeScrollEvent,
+  NativeSyntheticEvent,
+  Text,
+  View,
+} from 'react-native';
 
 import { getStartOfWeekForIndex, getStartOfWeekUTC, toUTCMidnight } from '@/utils/week';
+
+import { TOTAL_WEEKS } from '@/constants';
 
 import WeekView from './WeekView';
 
@@ -14,7 +23,6 @@ type WeekCalendarProps = {
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const ITEM_STYLE = { width: SCREEN_WIDTH };
-const TOTAL_WEEKS = 104;
 const CENTER_INDEX = Math.floor(TOTAL_WEEKS / 2);
 
 const todayUTC = toUTCMidnight(new Date());
@@ -58,8 +66,16 @@ function WeekCalendar({ onChangeValue, onWeekChange, value }: WeekCalendarProps)
         </View>
       );
     },
-    [value, onChangeValue], // baseStartOfWeek stable outside component
+    [value, onChangeValue],
   );
+
+  const HeaderComponent = () => {
+    return (
+      <View>
+        <Text>Ante</Text>
+      </View>
+    );
+  };
 
   return (
     <FlatList
@@ -79,6 +95,7 @@ function WeekCalendar({ onChangeValue, onWeekChange, value }: WeekCalendarProps)
       initialNumToRender={1}
       bounces={false}
       alwaysBounceVertical={false}
+      StickyHeaderComponent={() => HeaderComponent()}
     />
   );
 }

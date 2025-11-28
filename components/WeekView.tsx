@@ -3,9 +3,8 @@ import React from 'react';
 
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
-import { format, isSameDay } from 'date-fns';
-
-import { getWeekDays } from '../utils/week';
+import dayjs from '@/utils/dayjs';
+import { getWeekDays } from '@/utils/week';
 
 type WeekViewProps = {
   startOfWeek: Date;
@@ -16,13 +15,13 @@ type WeekViewProps = {
 function WeekView({ onSelectDay, selectedDate, startOfWeek }: WeekViewProps) {
   const days = getWeekDays(startOfWeek);
 
-  const formatWeekdayShort = (date: Date) => format(date, 'EEE');
-  const formatDayOfMonth = (date: Date) => format(date, 'd');
+  const formatWeekdayShort = (date: Date) => dayjs(date).format('ddd');
+  const formatDayOfMonth = (date: Date) => dayjs(date).format('D');
 
   return (
     <View style={styles.container}>
       {days.map((date) => {
-        const selected = isSameDay(date, selectedDate);
+        const selected = dayjs(date).isSame(selectedDate, 'day');
 
         return (
           <TouchableOpacity
@@ -30,8 +29,12 @@ function WeekView({ onSelectDay, selectedDate, startOfWeek }: WeekViewProps) {
             style={[styles.dayContainer, selected && styles.daySelected]}
             onPress={() => onSelectDay(date)}
           >
-            <Text style={styles.weekdayText}>{formatWeekdayShort(date)}</Text>
-            <Text style={styles.dayText}>{formatDayOfMonth(date)}</Text>
+            <Text style={[styles.weekdayText, selected && styles.weekdaySelectedText]}>
+              {formatWeekdayShort(date)}
+            </Text>
+            <Text style={[styles.dayText, selected && styles.daySelectedText]}>
+              {formatDayOfMonth(date)}
+            </Text>
           </TouchableOpacity>
         );
       })}
@@ -46,22 +49,34 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     justifyContent: 'space-between',
+    paddingHorizontal: 24,
   },
   dayContainer: {
     alignItems: 'center',
-    flex: 1,
-    justifyContent: 'center',
-    paddingVertical: 8,
+    alignSelf: 'center',
+    gap: 2,
+    padding: 14,
   },
   daySelected: {
-    borderRadius: 16,
-    borderWidth: 1,
+    backgroundColor: '#DE483A',
+    borderRadius: 12,
+  },
+  daySelectedText: {
+    color: '#FFFFFF',
   },
   dayText: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontFamily: 'BricolageGrotesqueBold',
+    fontSize: 18,
+    textAlign: 'center',
+  },
+  weekdaySelectedText: {
+    color: '#FFFFFF',
   },
   weekdayText: {
+    fontFamily: 'BricolageGrotesqueRegular',
     fontSize: 12,
+    textAlign: 'center',
+    textTransform: 'uppercase',
+    width: '100%',
   },
 });
