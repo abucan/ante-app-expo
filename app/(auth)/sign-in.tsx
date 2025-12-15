@@ -19,6 +19,7 @@ export default function Page() {
   const onPress = useCallback(
     async (provider: 'oauth_google' | 'oauth_apple') => {
       try {
+        WebBrowser.dismissAuthSession();
         const { createdSessionId, setActive, signIn, signUp } = await startSSOFlow({
           strategy: provider,
         });
